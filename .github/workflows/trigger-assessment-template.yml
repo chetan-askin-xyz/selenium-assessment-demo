@@ -1,0 +1,25 @@
+# Copy this file to your template repo as .github/workflows/trigger-assessment.yml
+# Students add secret ASSESSMENT_TRIGGER_TOKEN once (see docs/setup.md).
+
+name: Trigger assessment
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger assessment workflow
+        env:
+          REPO: ${{ github.repository }}
+          REF: ${{ github.ref }}
+          SHA: ${{ github.sha }}
+        run: |
+          curl -sS -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.ASSESSMENT_TRIGGER_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/testai-automation-labs/assesment-checker/dispatches \
+            -d "{\"event_type\":\"assessment-request\",\"client_payload\":{\"repository\":\"$REPO\",\"ref\":\"$REF\",\"sha\":\"$SHA\"}}"
